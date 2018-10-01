@@ -1,6 +1,10 @@
-"""TODO: Put your header comment here."""
+"""
+Mini Project 2: Computational Art
+@author: Sampei Omichi
+"""
 
-import random
+from random import *
+from math import *
 from PIL import Image
 
 
@@ -21,7 +25,16 @@ def build_random_function(min_depth, max_depth):
         these functions)
     """
     # TODO: implement this
-    pass
+    bas = ['x','y']
+    func = ['x','y','cos_pi','sin_pi','prod','avg']
+    if max_depth == 1:
+        return bas[randint(0,1)]
+    else:
+        block = func[randint(2,5)]
+        if block == 'prod' or 'avg': # When Block needs two inputs
+            return [block, build_random_function(min_depth-1, max_depth-1), build_random_function(min_depth-1, max_depth-1)]
+        elif not block == 'prod':
+            return [block, build_random_function(min_depth-1, max_depth-1)]
 
 
 def evaluate_random_function(f, x, y):
@@ -43,9 +56,19 @@ def evaluate_random_function(f, x, y):
         >>> evaluate_random_function(["y"],0.1,0.02)
         0.02
     """
-    # TODO: implement this
-    pass
-
+    # Complete
+    if f[0] == 'x':
+        return x
+    elif f[0] == 'y':
+        return y
+    elif f[0] == 'avg':
+        return (evaluate_random_function(f[1],x,y)+evaluate_random_function(f[2],x,y))/2
+    elif f[0] == 'cos_pi':
+        return cos(pi*evaluate_random_function(f[1],x,y))
+    elif f[0] == 'sin_pi':
+        return sin(pi*evaluate_random_function(f[1],x,y))
+    elif f[0] == 'prod':
+        return evaluate_random_function(f[1],x,y)*evaluate_random_function(f[2],x,y)
 
 def remap_interval(val,
                    input_interval_start,
@@ -80,9 +103,13 @@ def remap_interval(val,
         >>> remap_interval(5, 4, 6, 1, 2)
         1.5
     """
-    # TODO: implement this
-    pass
-
+    # Complete
+    scale = (val - input_interval_start) / \
+            (input_interval_end - input_interval_start)
+    scale = abs(scale)
+    output_val = (scale * (output_interval_end - output_interval_start)) \
+                + output_interval_start
+    return output_val
 
 def color_map(val):
     """Maps input value between -1 and 1 to an integer 0-255, suitable for use as an RGB color code.
@@ -103,10 +130,9 @@ def color_map(val):
         >>> color_map(0.5)
         191
     """
-    # NOTE: This relies on remap_interval, which you must provide
+    # Complete
     color_code = remap_interval(val, -1, 1, 0, 255)
     return int(color_code)
-
 
 def test_image(filename, x_size=350, y_size=350):
     """Generate a test image with random pixels and save as an image file.
@@ -122,9 +148,9 @@ def test_image(filename, x_size=350, y_size=350):
         for j in range(y_size):
             x = remap_interval(i, 0, x_size, -1, 1)
             y = remap_interval(j, 0, y_size, -1, 1)
-            pixels[i, j] = (random.randint(0, 255),  # Red channel
-                            random.randint(0, 255),  # Green channel
-                            random.randint(0, 255))  # Blue channel
+            pixels[i, j] = (randint(0, 255),  # Red channel
+                            randint(0, 255),  # Green channel
+                            randint(0, 255))  # Blue channel
 
     im.save(filename)
 
@@ -137,9 +163,9 @@ def generate_art(filename, x_size=350, y_size=350):
         x_size, y_size: optional args to set image dimensions (default: 350)
     """
     # Functions for red, green, and blue channels - where the magic happens!
-    red_function = ["x"]
-    green_function = ["y"]
-    blue_function = ["x"]
+    red_function = build_random_function(7, 9)
+    green_function = build_random_function(7, 9)
+    blue_function = build_random_function(7, 9)
 
     # Create image and loop over all pixels
     im = Image.new("RGB", (x_size, y_size))
@@ -164,8 +190,6 @@ if __name__ == '__main__':
     # Create some computational art!
     # TODO: Un-comment the generate_art function call after you
     #       implement remap_interval and evaluate_random_function
-    # generate_art("myart.png")
 
-    # Test that PIL is installed correctly
-    # TODO: Comment or remove this function call after testing PIL install
-    test_image("noise.png")
+    generate_art("example1.png")
+    generate_art("example2.png")
